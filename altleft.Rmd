@@ -1,0 +1,65 @@
+---
+title: "Political Compass of the Alt-Leftist Empire"
+date: "22 November 2017"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+```
+
+```{r, echo=FALSE, results='asis', warning=FALSE,fig.align='center', fig.width=9, fig.height=7, message=F}
+
+data1 <- read_csv("altleft.csv") 
+
+polcomp <- data1 %>%
+  select(Name, Economic, Cultural)
+# col_types = cols(Cultural = col_double()))
+
+data1$ideol <- rep("Center",length(data1$Cultural))
+data1$ideol[data1$Economic > 0 & data1$Cultural >0] <- "Authoritarian Right"
+data1$ideol[data1$Economic < 0 & data1$Cultural >0] <- "Authoritarian Left"
+data1$ideol[data1$Economic > 0 & data1$Cultural <0] <- "Libertarian Right"
+data1$ideol[data1$Economic < 0 & data1$Cultural <0] <- "Libertarian Left"
+
+p<-ggplot(data1, 
+          aes(Economic, Cultural, 
+              text =  paste("Name:", Name, 
+                            '\n', 
+                            "Ideology:", ideol))) + 
+  annotate("rect", xmin = 150, 
+           xmax = 0, ymin = 150, 
+           ymax = 0, fill= "blue", 
+           alpha=.16)  + 
+  annotate("rect", xmin = -150, 
+           xmax = 0, ymin = -150, 
+           ymax = 0 , fill= "green",
+           alpha=.16) + 
+  annotate("rect", xmin = 0, xmax = 150, 
+           ymin = 0, ymax = -150, 
+           fill= "purple",alpha=.16) + 
+  annotate("rect", xmin = 0, xmax = -150, 
+           ymin = 150, ymax = 0, 
+           fill= "red",alpha=.16) +
+  coord_cartesian(xlim = c(-100, 100), ylim=c(-100,100)) +
+  scale_x_continuous(breaks=seq(-100,100,10)) +  scale_y_continuous(breaks=seq(-100,100,10))+
+  geom_point(size=2,shape=20,colour="red") +
+  labs(x = "Economic Left/Right",
+       y = "Cultural Libertarian/Authoritarian",
+       title = "Political Compass of the Alt-Leftist Empire")
+
+ggplotly(p)
+```
+
+
+
+
+
+
